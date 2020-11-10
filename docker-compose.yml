@@ -1,0 +1,21 @@
+version: '3'
+services:
+    bank-simulator:
+        build: 
+            dockerfile: Dockerfile
+            context: ./bank-simulator
+        hostname: bank-simulator
+        ports:
+          - 34765:80
+    api:
+        build: 
+            dockerfile: Dockerfile
+            context: ./src
+        ports:
+          - 5000:5000
+        environment:
+            - AcquiringBankConfiguration__BaseAddress=http://bank-simulator
+            - ASPNETCORE_URLS=http://+:5000
+        depends_on:
+            - bank-simulator
+        

@@ -32,7 +32,7 @@ namespace Domain
             var digits = number.ToCharArray();
 
             var i = digits.Length - 4;
-            while (--i > 0) digits[i] = '*';
+            while (--i >= 0) digits[i] = '*';
 
             return new string(digits);
         }

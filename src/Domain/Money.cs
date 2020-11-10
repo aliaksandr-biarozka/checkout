@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Domain.SeedWork;
-
-namespace Domain
+﻿namespace Domain
 {
-    public class Money : ValueObject
+    public class Money
     {
         public string Currency { get; }
 
@@ -14,12 +10,6 @@ namespace Domain
         {
             Currency = currency;
             Value = amount;
-        }
-
-        protected override IEnumerable<object> GetEqualityComponents()
-        {
-            yield return Currency;
-            yield return Value;
         }
     }
 }

@@ -8,6 +8,10 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DocumentationFile>bin\Debug\netcoreapp3.1\Documentation.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>false</Optimize>
+    <DocumentationFile>bin\Release\netcoreapp3.1\Documentation.xml</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\" />
     <Folder Include="ResourceModels\" />
