@@ -17,8 +17,8 @@ namespace API.Infrastructure.Swagger
                 {
                     Number = "************1111",
                     Name = "John Smith",
-                    ExpiryMonth = "07",
-                    ExpiryYear = "2021",
+                    ExpiryMonth = DateTime.UtcNow.Month.ToString("00"),
+                    ExpiryYear = DateTime.UtcNow.Year.ToString(),
                 }
             };
         }
