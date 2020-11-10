@@ -16,7 +16,7 @@ namespace Infrastructure
         public PaymentRequestDuplicateChecker(IAppCache cache) => _cache = cache;
 
         // logic that checks for duplicates should be added here.
-        // simpulate duplication checking
+        // the code below is just a  simple simpulation of the duplication checking
         public async Task Check(PaymentRequest request)
         {
             var entry =_cache.GetOrAdd(_key(request.RequestId, request.MerchantId), () => request);

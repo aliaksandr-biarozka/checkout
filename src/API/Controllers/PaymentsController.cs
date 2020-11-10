@@ -43,7 +43,7 @@ namespace API.Controllers
         {
             var result = await _paymentService.ProcessPaymentRequest(merchant_id, request_id, payment.ToDto());
 
-            return CreatedAtRoute(new { paymentId = result.PaymentId }, result.ToResource());
+            return CreatedAtAction(nameof(PaymentsController.GetPayment), new { paymentId = result.PaymentId }, result.ToResource());
         }
 
         /// <summary>

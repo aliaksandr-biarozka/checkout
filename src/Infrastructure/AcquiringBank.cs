@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using Domain;
 using Domain.SeedWork;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace Infrastructure
@@ -43,7 +44,13 @@ namespace Infrastructure
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException($"Attempt to access third-party API returns {response.StatusCode} status code. POST: {_client.BaseAddress + config.Endpoint}. Request Body: {requestModel}. Response: {await response.Content.ReadAsStringAsync()}");
+                //convert error data from acquiring bank to our domain langunage data and return it to a client. Code below is just for an example.
+                if (response.StatusCode == HttpStatusCode.Forbidden || response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    throw new DomainRuleViolationException(JsonConvert.DeserializeObject<ProblemDetails >(await response.Content.ReadAsStringAsync()).Title);
+                }
+                else
+                    throw new HttpRequestException($"Attempt to access third-party API returns {response.StatusCode} status code. POST: {_client.BaseAddress + config.Endpoint}. Request Body: {requestModel}. Response: {await response.Content.ReadAsStringAsync()}");
             }
 
             var transactionResult = JsonConvert.DeserializeObject<TransactionResult>(await response.Content.ReadAsStringAsync());

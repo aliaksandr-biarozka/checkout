@@ -34,8 +34,7 @@ namespace API.ResourceModels
         /// 09
         /// </example>
         [Required]
-        [RegularExpression("^0[1-9]|1[0-2]$")]
-        [StringLength(2, MinimumLength = 2, ErrorMessage = "The expiry month must be 2 digits")]
+        [RegularExpression("^0[1-9]|1[0-2]$", ErrorMessage = "The expiry month must be 2 digits")]
         public string ExpiryMonth { get; set; }
 
         /// <summary>
