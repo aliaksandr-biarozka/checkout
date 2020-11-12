@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Polly.CircuitBreaker;
 
 namespace API.Infrastructure
 {
@@ -18,6 +19,8 @@ namespace API.Infrastructure
         private readonly RequestDelegate _next;
 
         private readonly ILogger _logger;
+
+        private readonly string errorMessage = $"An error occured during processing request: {{method}} {{url}} made by user {{user}}{Environment.NewLine}Host: {{hostname}}{Environment.NewLine} Request body: {{body}}";
 
         public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
         {
@@ -53,38 +56,44 @@ namespace API.Infrastructure
 #else
                     errorData.Detail = "Error was occurred. Please try again later!";
 #endif
-
-                    string user = null;
-                    string url = null;
-                    string method = null;
-                    string host = null;
-                    string body = null;
-
-                    try
+                    if(e is BrokenCircuitException)
                     {
-                        url = context.Request.GetDisplayUrl();
-                        method = context.Request.Method;
-                        host = context.Request.Host.Host;
+                        _logger.LogWarning(e.Message);
+                    }
+                    else
+                    {
+                        string user = null;
+                        string url = null;
+                        string method = null;
+                        string host = null;
+                        string body = null;
 
-                        if (MediaTypeNames.Application.Json == context.Request.ContentType)
+                        try
                         {
-                            if (context.Request.Body.CanSeek)
-                            {
-                                context.Request.Body.Seek(0, SeekOrigin.Begin);
-                            }
+                            url = context.Request.GetDisplayUrl();
+                            method = context.Request.Method;
+                            host = context.Request.Host.Host;
 
-                            using (var reader = new StreamReader(context.Request.Body))
+                            if (MediaTypeNames.Application.Json == context.Request.ContentType)
                             {
-                                body = await reader.ReadToEndAsync();
+                                if (context.Request.Body.CanSeek)
+                                {
+                                    context.Request.Body.Seek(0, SeekOrigin.Begin);
+                                }
+
+                                using (var reader = new StreamReader(context.Request.Body))
+                                {
+                                    body = await reader.ReadToEndAsync();
+                                }
                             }
                         }
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+                        catch
+                        {
+                            // ignored
+                        }
 
-                    _logger.LogError(e, errorData.Detail, method, url, user, host, body);
+                        _logger.LogError(e, errorMessage, method, url, user, host, body);
+                    }
                 }
 
                 await context.Response.WriteAsync(JsonSerializer.Serialize<ProblemDetails>(errorData));

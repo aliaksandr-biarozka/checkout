@@ -32,19 +32,10 @@ namespace Infrastructure
             HttpResponseMessage response = null;
             var requestModel = JsonConvert.SerializeObject(ToBankRequestModel(paymentRequest));
 
-            try
-            {
-                // provided client has cofigured retries and circuit breaker and logging
-                response = await _client.PostAsync(config.Endpoint, new StringContent(requestModel, Encoding.UTF8, MediaTypeNames.Application.Json));
-            }
-            catch (HttpRequestException e)
-            {
-                throw new HttpRequestException($"Attempt to access third-party API returns {response.StatusCode} status code. POST: {_client.BaseAddress + config.Endpoint}. Request Body: {requestModel}.", e);
-            }
+            response = await _client.PostAsync(config.Endpoint, new StringContent(requestModel, Encoding.UTF8, MediaTypeNames.Application.Json));
 
             if (!response.IsSuccessStatusCode)
             {
-                //convert error data from acquiring bank to our domain langunage data and return it to a client. Code below is just for an example.
                 if (response.StatusCode == HttpStatusCode.Forbidden || response.StatusCode == HttpStatusCode.BadRequest)
                 {
                     throw new DomainRuleViolationException(JsonConvert.DeserializeObject<ProblemDetails >(await response.Content.ReadAsStringAsync()).Title);
@@ -60,24 +51,9 @@ namespace Infrastructure
 
         private static TransactionRequest ToBankRequestModel(PaymentRequest paymentRequest)
         {
-            return new TransactionRequest
-            {
-                MerchantId = paymentRequest.MerchantId,
-                RequestId = paymentRequest.RequestId,
-                Amount = new Amount
-                {
-                    Currency = paymentRequest.Amount.Currency,
-                    Value = paymentRequest.Amount.Value
-                },
-                Card = new Card
-                {
-                    Number = paymentRequest.Card.Number,
-                    Name = paymentRequest.Card.Name,
-                    ExpiryMonth = paymentRequest.Card.ExpiryMonth,
-                    ExpiryYear = paymentRequest.Card.ExpiryYear,
-                    Cvv = paymentRequest.Card.Cvv
-                }
-            };
+            return new TransactionRequest(paymentRequest.MerchantId, paymentRequest.RequestId,
+                new Amount(paymentRequest.Amount.Currency, paymentRequest.Amount.Value),
+                new Card(paymentRequest.Card.Number, paymentRequest.Card.Name, paymentRequest.Card.ExpiryMonth, paymentRequest.Card.ExpiryYear, paymentRequest.Card.Cvv));
         }
 
         private static PaymentResult ToDomainModel(TransactionResult transactionResult)
@@ -90,43 +66,13 @@ namespace Infrastructure
             });
         }
 
-        class TransactionRequest
-        {
-            public Guid MerchantId { get; set; }
+        record TransactionRequest (Guid MerchantId, Guid RequestId, Amount Amount, Card Card);
 
-            public Guid RequestId { get; set; }
+        record Card (string Number, string Name, string ExpiryMonth, string ExpiryYear, string Cvv);
 
-            public Card Card { get; set; }
+        record Amount (string Currency, long Value);
 
-            public Amount Amount { get; set; }
-        }
-
-        class Card
-        {
-            public string Number { get; set; }
-
-            public string Name { get; set; }
-
-            public string ExpiryMonth { get; set; }
-
-            public string ExpiryYear { get; set; }
-
-            public string Cvv { get; set; }
-        }
-
-        class Amount
-        {
-            public string Currency { get; set; }
-
-            public long Value { get; set; }
-        }
-
-        class TransactionResult
-        {
-            public Guid TransactionId { get; set; }
-
-            public TransactionStatus Status { get; set; }
-        }
+        record TransactionResult (Guid TransactionId, TransactionStatus Status);
 
         enum TransactionStatus
         {

@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Extensions.Http;
@@ -13,9 +12,9 @@ namespace API.Infrastructure.HttpClientPolicies
     // numbers are hardcoded for implicity. They can be read from configuration
     public static class RetryPolicy
     {
-        public const int RetryAttempts = 5;
+        public const int RetryAttempts = 3;
 
-        public static IAsyncPolicy<HttpResponseMessage> Basic(IServiceProvider serviceProvider, HttpRequestMessage request) =>
+        public static IAsyncPolicy<HttpResponseMessage> Basic(ILogger logger, HttpRequestMessage request) =>
             HttpPolicyExtensions.HandleTransientHttpError()
                 .Or<TaskCanceledException>()
                 .Or<TimeoutException>()
@@ -23,11 +22,10 @@ namespace API.Infrastructure.HttpClientPolicies
                 .WaitAndRetryAsync(RetryAttempts, retryAttempt => TimeSpan.FromSeconds(Math.Pow(1.5, retryAttempt)),
                     async (outcome, timeSpan, retryAttempt, context) =>
                     {
-                        serviceProvider.GetService<ILogger<HttpClient>>()
-                            .LogInformation($"Delaying for {timeSpan.TotalSeconds} sec, then making retry {retryAttempt} calling {request.Method.Method}: {request.RequestUri}. Body: {await request.Content.ReadAsStringAsync()}");
+                        logger.LogInformation($"Delaying for {timeSpan.TotalSeconds} sec, then making retry {retryAttempt} calling {request.Method.Method}: {request.RequestUri}. Body: {await request.Content.ReadAsStringAsync()}");
                     });
 
-        public static IAsyncPolicy<HttpResponseMessage> HonouringRetry(IServiceProvider serviceProvider, HttpRequestMessage request)
+        public static IAsyncPolicy<HttpResponseMessage> HonouringRetry(ILogger logger, HttpRequestMessage request)
         {
             return Policy<HttpResponseMessage>.HandleResult(r => r.StatusCode == (HttpStatusCode)429)
                 .WaitAndRetryAsync(RetryAttempts, (retryAttempt, response, context) =>
@@ -40,7 +38,7 @@ namespace API.Infrastructure.HttpClientPolicies
 
                 }, async (response, timeSpan, retryAttempt, context) =>
                 {
-                    serviceProvider.GetService<ILogger<HttpClient>>().LogInformation($"Handle 429 http status code. Delaying for {timeSpan.TotalSeconds} sec, then making retry {retryAttempt} calling {request.Method.Method}: {request.RequestUri}. Body: {await request.Content.ReadAsStringAsync()}");
+                    logger.LogInformation($"Handle 429 http status code. Delaying for {timeSpan.TotalSeconds} sec, then making retry {retryAttempt} calling {request.Method.Method}: {request.RequestUri}. Body: {await request.Content.ReadAsStringAsync()}");
                 });
         }
 

@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Polly;
+using Polly.CircuitBreaker;
 using Polly.Extensions.Http;
 
 namespace API.Infrastructure.HttpClientPolicies
@@ -15,6 +16,8 @@ namespace API.Infrastructure.HttpClientPolicies
             HttpPolicyExtensions.HandleTransientHttpError()
                 .Or<TaskCanceledException>()
                 .Or<TimeoutException>()
-                .CircuitBreakerAsync(AllowedUnsuccessfulCalls, TimeSpan.FromSeconds(15));
+                .CircuitBreakerAsync(AllowedUnsuccessfulCalls, TimeSpan.FromSeconds(15),
+                (result, breakDuration) => throw new BrokenCircuitException("Service inoperative. Circuit is open"),
+                () => { });
     }
 }

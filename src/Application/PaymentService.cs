@@ -5,6 +5,16 @@ using Domain.SeedWork;
 
 namespace Application
 {
+    public record PaymentReqestDto(string CardNumber, string CardHolderName, string ExpiryMonth, string ExpiryYear, string CVV, long Amount, string Currency);
+
+    public record PaymentDto(Guid PaymentId, string CardNumber, string CardHolderName, string ExpiryMonth, string ExpiryYear, PaymentStatus Status, long Amount, string Currency);
+
+    public enum PaymentStatus
+    {
+        Approved,
+        Rejected
+    }
+
     public class PaymentService
     {
         private readonly IPaymentRepository _paymentRepository;
@@ -55,17 +65,16 @@ namespace Application
 
         private PaymentDto ToDto(Payment payment)
         {
-            return new PaymentDto
-            {
-                PaymentId = payment.Id,
-                CardNumber = payment.CardDetails.Number,
-                CardHolderName = payment.CardDetails.Name,
-                ExpiryMonth = payment.CardDetails.ExpiryMonth,
-                ExpiryYear = payment.CardDetails.ExpiryYear,
-                Status = payment.Status == Domain.PaymentStatus.Approved ? PaymentStatus.Approved : PaymentStatus.Rejected,
-                Amount = payment.Amount.Value,
-                Currency = payment.Amount.Currency
-            };
+            return new PaymentDto(
+                payment.Id,
+                payment.CardDetails.Number,
+                payment.CardDetails.Name,
+                payment.CardDetails.ExpiryMonth,
+                payment.CardDetails.ExpiryYear,
+                payment.Status == Domain.PaymentStatus.Approved ? PaymentStatus.Approved : PaymentStatus.Rejected,
+                payment.Amount.Value,
+                payment.Amount.Currency
+            );
         }
     }
 }

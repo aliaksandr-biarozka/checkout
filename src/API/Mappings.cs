@@ -35,16 +35,15 @@ namespace API
 
         public static PaymentReqestDto ToDto(this Payment resource)
         {
-            return new PaymentReqestDto
-            {
-                Amount = resource.Amount.Value,
-                Currency = resource.Amount.Currency,
-                CardNumber = resource.Card.Number,
-                CardHolderName = resource.Card.Name,
-                ExpiryMonth = resource.Card.ExpiryMonth,
-                ExpiryYear = resource.Card.ExpiryYear,
-                CVV = resource.Card.CVV
-            };
+            return new PaymentReqestDto(
+                resource.Card.Number,
+                resource.Card.Name,
+                resource.Card.ExpiryMonth,
+                resource.Card.ExpiryYear,
+                resource.Card.CVV,
+                resource.Amount.Value,
+                resource.Amount.Currency
+                );
         }
     }
 }

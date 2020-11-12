@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using API.Infrastructure;
-using API.Infrastructure.DelegatingHandlers;
 using API.Infrastructure.Extensions;
+using API.Infrastructure.HttpClientLogging;
 using API.Infrastructure.HttpClientPolicies;
 using Application;
 using Domain;
@@ -12,10 +12,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Polly;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace API
@@ -33,7 +37,7 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers()
-                // System.Text.Json does not support snake case strategy. Once it does (.NET 5), System.Text.Json should be used for better performance 
+                // System.Text.Json does not support snake case strategy. Once it does (.NET 6), System.Text.Json should be used for better performance 
                 .AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
@@ -47,8 +51,7 @@ namespace API
                     JsonConvert.DefaultSettings = () => options.SerializerSettings;
                 });
 
-            services.AddConfiguredApiVersioning()
-                .AddHttRequestPolicyDelegating();
+            services.AddConfiguredApiVersioning();
 
             services.AddSwaggerGen(options =>
             {
@@ -70,12 +73,15 @@ namespace API
             services.AddTransient<IPaymentRepository, InMemoryPaymentRepository>();
             services.AddTransient<IAcquiringBankConfigurationProvider>(p => new AcquiringBankConfigurationProvider(Configuration.GetSection(nameof(AcquiringBankConfiguration)).Get<AcquiringBankConfiguration>()));
             services.AddTransient<IPaymentRequestDuplicateChecker, PaymentRequestDuplicateChecker>();
+
+            var circuitBreaker = CircuitBreakerPolicy.Basic;
             services.AddHttpClient<IAcquiringBank, AcquiringBank>()
-                .AddHttpRequestPolicyHandlerSupport()
-                .AddPolicyHandler(RetryPolicy.Basic)
-                .AddPolicyHandler(RetryPolicy.HonouringRetry)
+                .AddPolicyHandler((s, r) => Policy.WrapAsync(RetryPolicy.Basic(s.GetService<ILogger<IAcquiringBank>>(), r),
+                                                             RetryPolicy.HonouringRetry(s.GetService<ILogger<IAcquiringBank>>(), r)))
                 .AddPolicyHandler(TimeoutPolicy.Basic)
-                .AddPolicyHandler(CircuitBreakerPolicy.Basic);
+                .AddPolicyHandler((s, r) => circuitBreaker);
+
+            services.Replace(ServiceDescriptor.Singleton<IHttpMessageHandlerBuilderFilter, LoggingFilter>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -88,7 +94,8 @@ namespace API
 
             app.UseHttpsRedirection();
 
-            app.UseCustomExceptionHandling();
+            app.UseCustomExceptionHandling()
+               .UseRequestLogging();
 
             app.UseRouting();
 
