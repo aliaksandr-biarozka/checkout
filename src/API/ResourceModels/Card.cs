@@ -5,7 +5,7 @@ namespace API.ResourceModels
     /// <summary>
     /// Card
     /// </summary>
-    public class Card
+    public record Card
     {
         /// <summary>
         /// The card number. Numeric string, 13-19 digits
@@ -15,7 +15,7 @@ namespace API.ResourceModels
         /// </example>
         [Required]
         [RegularExpression("^[0-9]{13,19}$", ErrorMessage = "The card number length must be 13 to 19 digits")]
-        public string Number { get; set; }
+        public string Number { get; init; }
 
         /// <summary>
         /// The name of the cardholder. According the ISO IEC 7813 the cardholder name length must be 2 to 26 characters including first name, last name and spaces
@@ -25,7 +25,7 @@ namespace API.ResourceModels
         /// </example>
         [Required]
         [StringLength(26, MinimumLength = 2, ErrorMessage = "The card holder name must be 2 to 26 characters")]
-        public string Name { get; set; }
+        public string Name { get; init; }
 
         /// <summary>
         /// The card expiration month. Numeric string, 2 digits
@@ -35,7 +35,7 @@ namespace API.ResourceModels
         /// </example>
         [Required]
         [RegularExpression("^0[1-9]|1[0-2]$", ErrorMessage = "The expiry month must be 2 digits")]
-        public string ExpiryMonth { get; set; }
+        public string ExpiryMonth { get; init; }
 
         /// <summary>
         /// The card expiration year. Numeric string, 4 digits
@@ -45,7 +45,7 @@ namespace API.ResourceModels
         /// </example>
         [Required]
         [RegularExpression(@"^[2-9]\d{3}$", ErrorMessage = "The expiry year must be 4 digits")]
-        public string ExpiryYear { get; set; }
+        public string ExpiryYear { get; init; }
 
         /// <summary>
         /// The card verification value/code. Numeric string, 3-4 digits
@@ -55,6 +55,6 @@ namespace API.ResourceModels
         /// </example>
         [Required]
         [RegularExpression(@"^\d{3,4}$", ErrorMessage = "CVV/CVC must be 3 to 4 digits")]
-        public string CVV { get; set; }
+        public string CVV { get; init; }
     }
 }

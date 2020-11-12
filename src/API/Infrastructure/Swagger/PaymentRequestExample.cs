@@ -13,7 +13,7 @@ namespace API.Infrastructure.Swagger
                 Amount = new Amount { Currency = "EUR", Value = 1020 },
                 Card = new Card
                 {
-                    Number = "4444111111111111",
+                    Number = "4539889990915926",
                     Name = "John Smith",
                     ExpiryMonth = DateTime.UtcNow.Month.ToString("00"),
                     ExpiryYear = DateTime.UtcNow.Year.ToString(),

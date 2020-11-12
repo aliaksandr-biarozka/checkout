@@ -4,7 +4,7 @@ Repository contains inital phase of payment getway and simple acquiring bank sim
 
 Payment getway details:
  - REST API
- - built using .NET Core 3.1
+ - built using .NET 5
  - swagger (swashbuckle) as API documentation
  - Onion architecture (a
  - DDD
@@ -19,7 +19,7 @@ Payment getway details:
 
 Acquirung bank details:
   - REST API
-  - built using .NET Core 3.1
+  - built using .NET 5
   - mocked endpoint for processing payment requests with simple responses
 
 To test a solution should be run using either docker-compose or visual studio/rider.
@@ -38,4 +38,4 @@ Improvements (time is needed for them):
 - add all kind of validation that is mocked, or where comments are left
 - better circuit breaker (per endpoint)
 - unified error responses
-- implement extra mile points
+- implement left extra mile points

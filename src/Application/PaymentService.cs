@@ -25,7 +25,7 @@ namespace Application
 
             try
             {
-                // there should be preliminary fraud checking, currency validation on existence, credit card expiration and etc. It is not added as it takes time.
+                // there should be preliminary fraud checking.
                 var card = new Card(request.CardNumber, request.CardHolderName, request.ExpiryMonth, request.ExpiryYear, request.CVV);
                 var amount = new Money(request.Currency, request.Amount);
                 var paymentRequest = new PaymentRequest(merchantId, requestId, card, amount);

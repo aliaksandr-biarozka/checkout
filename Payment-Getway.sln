@@ -9,9 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\Infra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "src\Application\Application.csproj", "{178B643F-8682-41E2-AAE2-40E7B34F2031}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AcquiringBankSimulator", "AcquiringBankSimulator", "{A3920B99-FA26-4799-80CB-9DD67482B181}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "acquiring-bank-simulator", "acquiring-bank-simulator", "{A3920B99-FA26-4799-80CB-9DD67482B181}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSimulator", "bank-simulator\BankSimulator.csproj", "{D95D2215-7E43-438E-AE75-F6225F4C0026}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{223EC315-08B8-4F70-8B8E-C3444C17DEB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,23 +1,23 @@
 ﻿using System;
 namespace Application
 {
-    public class PaymentDto
+    public record PaymentDto
     {
-        public Guid PaymentId { get; set; }
+        public Guid PaymentId { get; init; }
 
-        public string CardNumber { get; set; }
+        public string CardNumber { get; init; }
 
-        public string CardHolderName { get; set; }
+        public string CardHolderName { get; init; }
 
-        public string ExpiryMonth { get; set; }
+        public string ExpiryMonth { get; init; }
 
-        public string ExpiryYear { get; set; }
+        public string ExpiryYear { get; init; }
 
-        public PaymentStatus Status { get; set; }
+        public PaymentStatus Status { get; init; }
 
-        public long Amount { get; set; }
+        public long Amount { get; init; }
 
-        public string Currency { get; set; }
+        public string Currency { get; init; }
     }
 
     public enum PaymentStatus

@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Application;
 using Microsoft.AspNetCore.Builder;
@@ -90,12 +89,6 @@ namespace API.Infrastructure
 
                 await context.Response.WriteAsync(JsonSerializer.Serialize<ProblemDetails>(errorData));
             }
-        }
-
-        class ErrorData
-        {
-            [JsonPropertyName("message")]
-            public string Message { get; set; }
         }
     }
 

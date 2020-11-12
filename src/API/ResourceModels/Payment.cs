@@ -6,28 +6,28 @@ namespace API.ResourceModels
     /// <summary>
     /// Payment
     /// </summary>
-    public class Payment
+    public record Payment
     {
         /// <summary>
         /// The payment's unique identifier. It is readonly and set by the system
         /// </summary>
-        public Guid? PaymentId { get; set; }
+        public Guid? PaymentId { get; init; }
 
         /// <summary>
         /// The payment's status. It is readonly and set by the systemw
         /// </summary>
-        public PaymentStatus? Status { get; set; }
+        public PaymentStatus? Status { get; init; }
 
         /// <summary>
         /// The shopper card
         /// </summary>
         [Required]
-        public Card Card { get; set; }
+        public Card Card { get; init; }
 
         /// <summary>
         /// The amount
         /// </summary>
         [Required]
-        public Amount Amount { get; set; }
+        public Amount Amount { get; init; }
     }
 }

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace API.ResourceModels
 {
     /// <summary>
     /// Amount
     /// </summary>
-    public class Amount
+    public record Amount
     {
         /// <summary>
         ///  The amount represented in smallest unit of the currency passed.
@@ -22,7 +21,7 @@ namespace API.ResourceModels
         /// </example>
         [Required]
         [Range(typeof(long), "1", "999999999999999999")]
-        public long Value { get; set; }
+        public long Value { get; init; }
 
         /// <summary>
         /// Currency of the payment
@@ -33,6 +32,6 @@ namespace API.ResourceModels
         /// </example>
         [Required]
         [RegularExpression(@"^[A-Z]{3}$", ErrorMessage = "Invalid currency format")]
-        public string Currency { get; set; }
+        public string Currency { get; init; }
     }
 }
