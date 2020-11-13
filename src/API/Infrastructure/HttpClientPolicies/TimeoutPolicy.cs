@@ -5,7 +5,6 @@ namespace API.Infrastructure.HttpClientPolicies
 {
     public static class TimeoutPolicy
     {
-        // number is hardcoded for implicity. it can be read from configuration
-        public static IAsyncPolicy<HttpResponseMessage> Basic => Policy.TimeoutAsync<HttpResponseMessage>(30);
+        public static IAsyncPolicy<HttpResponseMessage> Basic(int requestTimeoutInSeconds) => Policy.TimeoutAsync<HttpResponseMessage>(requestTimeoutInSeconds);
     }
 }

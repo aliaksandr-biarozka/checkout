@@ -7,16 +7,13 @@ using Polly.Extensions.Http;
 
 namespace API.Infrastructure.HttpClientPolicies
 {
-    // number are hardcoded for implicity. They can be read from configuration
     public static class CircuitBreakerPolicy
     {     
-        public const int AllowedUnsuccessfulCalls = 5;
-
-        public static IAsyncPolicy<HttpResponseMessage> Basic =>
+        public static IAsyncPolicy<HttpResponseMessage> Basic(int allowedUnsuccessfulCalls, int durationOfBreakInSeconds) =>
             HttpPolicyExtensions.HandleTransientHttpError()
                 .Or<TaskCanceledException>()
                 .Or<TimeoutException>()
-                .CircuitBreakerAsync(AllowedUnsuccessfulCalls, TimeSpan.FromSeconds(15),
+                .CircuitBreakerAsync(allowedUnsuccessfulCalls, TimeSpan.FromSeconds(durationOfBreakInSeconds),
                 (result, breakDuration) => throw new BrokenCircuitException("Service inoperative. Circuit is open"),
                 () => { });
     }

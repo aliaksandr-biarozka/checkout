@@ -74,11 +74,12 @@ namespace API
             services.AddTransient<IAcquiringBankConfigurationProvider>(p => new AcquiringBankConfigurationProvider(Configuration.GetSection(nameof(AcquiringBankConfiguration)).Get<AcquiringBankConfiguration>()));
             services.AddTransient<IPaymentRequestDuplicateChecker, PaymentRequestDuplicateChecker>();
 
-            var circuitBreaker = CircuitBreakerPolicy.Basic;
+            var httpPolicySettings = Configuration.GetSection(nameof(HttpClientPolicySettings)).Get<HttpClientPolicySettings>();
+            var circuitBreaker = CircuitBreakerPolicy.Basic(httpPolicySettings.RetryCountBeforeBreaking, httpPolicySettings.DurationOfBreakInSeconds);            
             services.AddHttpClient<IAcquiringBank, AcquiringBank>()
-                .AddPolicyHandler((s, r) => Policy.WrapAsync(RetryPolicy.Basic(s.GetService<ILogger<IAcquiringBank>>(), r),
-                                                             RetryPolicy.HonouringRetry(s.GetService<ILogger<IAcquiringBank>>(), r)))
-                .AddPolicyHandler(TimeoutPolicy.Basic)
+                .AddPolicyHandler((s, r) => Policy.WrapAsync(RetryPolicy.Basic(s.GetService<ILogger<IAcquiringBank>>(), r, httpPolicySettings.RetryCount),
+                                                             RetryPolicy.HonouringRetry(s.GetService<ILogger<IAcquiringBank>>(), r, httpPolicySettings.RetryCount)))
+                .AddPolicyHandler(TimeoutPolicy.Basic(httpPolicySettings.RequestTimeoutInSeconds))
                 .AddPolicyHandler((s, r) => circuitBreaker);
 
             services.Replace(ServiceDescriptor.Singleton<IHttpMessageHandlerBuilderFilter, LoggingFilter>());
