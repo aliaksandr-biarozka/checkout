@@ -1,5 +1,23 @@
 version: '3'
 services:
+    grafana:
+        image: 'grafana/grafana:latest'
+        ports:
+          - 3000:3000
+    influxdb:
+        image: 'influxdb:alpine'
+        ports:
+          - 8086:8086
+    chronograf:
+        image: 'chronograf:alpine'
+        ports:
+            - 8888:8888
+        environment:
+          - INFLUXDB_ADMIN_USER=admin
+          - INFLUXDB_ADMIN_PASSWORD=admin
+          - INFLUXDB_DB=metricsdatabase
+          - INFLUXDB_USER=paymentgetway
+          - INFLUXDB_USER_PASSWORD=paymentgetway
     bank-simulator:
         build: 
             dockerfile: Dockerfile
@@ -15,6 +33,10 @@ services:
           - 5000:5000
         environment:
             - AcquiringBankConfiguration__BaseAddress=http://bank-simulator
+            - ApplicationMetrics__DataStore__Address=http://influxdb:8086
+            - ApplicationMetrics__DataStore__Database=metricsdatabase
+            - ApplicationMetrics__DataStore__UserName=paymentgetway
+            - ApplicationMetrics__DataStore__Password=paymentgetway
             - ASPNETCORE_URLS=http://+:5000
         depends_on:
             - bank-simulator

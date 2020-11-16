@@ -33,6 +33,8 @@
     <PackageReference Include="Polly" Version="7.2.1" />
     <PackageReference Include="LazyCache" Version="2.1.2" />
     <PackageReference Include="LazyCache.AspNetCore" Version="2.1.2" />
+    <PackageReference Include="App.Metrics.AspNetCore" Version="4.1.0" />
+    <PackageReference Include="App.Metrics.InfluxDB" Version="4.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj">

@@ -21,6 +21,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Polly;
 using Swashbuckle.AspNetCore.Filters;
+using Microsoft.OpenApi.Models;
 
 namespace API
 {
@@ -51,11 +52,12 @@ namespace API
                     JsonConvert.DefaultSettings = () => options.SerializerSettings;
                 });
 
-            services.AddConfiguredApiVersioning();
+            services.AddConfiguredAppMetrics(Configuration)
+                .AddConfiguredApiVersioning();
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Payment Getway API",
                     Description = "Payment Getway API",
@@ -88,7 +90,7 @@ namespace API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            if (env.IsDevelopment()) 
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -108,6 +110,8 @@ namespace API
 
                 c.RoutePrefix = "";
             });
+
+            app.UseMetricsAllMiddleware();
 
             app.UseEndpoints(endpoints =>
             {
