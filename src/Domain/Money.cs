@@ -10,13 +10,13 @@ namespace Domain
 
         public long Value { get; }
 
-        public Money(string currency, long amount)
+        public Money(string currency, long value)
         {
             CurrencyValidator.Validate(currency);
-            Require.That(amount > 0 && amount <= MaxValue, $"Provided amount must be between 1 and {MaxValue}");
+            Require.That(value > 0 && value <= MaxValue, $"Provided amount must be between 1 and {MaxValue}");
 
             Currency = currency;
-            Value = amount;
+            Value = value;
         }
     }
 }

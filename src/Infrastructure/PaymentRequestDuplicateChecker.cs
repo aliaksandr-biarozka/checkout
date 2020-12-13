@@ -1,30 +1,22 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Domain;
 using Domain.SeedWork;
-using LazyCache;
+using StackExchange.Redis;
 
 namespace Infrastructure
 {
     public class PaymentRequestDuplicateChecker : IPaymentRequestDuplicateChecker
     {
-        // in real app is should be distrebuted as there will be multiple nodes in the payment getway claster
-        private readonly IAppCache _cache;
+        private readonly ConnectionMultiplexer _connection;
 
-        private readonly Func<Guid, Guid, string> _key = (requestId, merchantId) => $"m_{merchantId}_r_{requestId}";
+        public PaymentRequestDuplicateChecker(ConnectionMultiplexer connection) => _connection = connection;
 
-        public PaymentRequestDuplicateChecker(IAppCache cache) => _cache = cache;
-
-        // logic that checks for duplicates should be added here.
-        // the code below is just a  simple simpulation of the duplication checking
         public async Task Check(PaymentRequest request)
         {
-            var entry =_cache.GetOrAdd(_key(request.RequestId, request.MerchantId), () => request);
+            var saved = await _connection.GetDatabase().StringSetAsync($"m_{request.MerchantId}_r_{request.RequestId}", request, when: When.NotExists);
 
-            if (entry != request)
-                throw new DomainRuleViolationException($"Request {request.RequestId} has already been processed");
-
-            await Task.CompletedTask;
+            if (!saved)
+                throw new DomainRuleViolationException($"Request {request.RequestId} made by merchant {request.MerchantId} has already been processed");
         }
     }
 }

@@ -4,14 +4,75 @@ services:
         image: 'grafana/grafana:latest'
         ports:
           - 3000:3000
+    redis1:
+        image: 'redis:alpine'
+        container_name: 'redis1'
+        network_mode: host
+        command: redis-server /etc/redis/redis.conf
+        ports:
+          - 7001:7001
+        volumes:
+          - /Users/aliaksandrbiarozka/programming/samples/checkout/checkout/building-blocks/redis-cluster/node1.conf:/etc/redis/redis.conf
+    redis2:
+        image: 'redis:alpine'
+        container_name: 'redis2'
+        network_mode: host
+        command: redis-server /etc/redis/redis.conf
+        ports:
+          - 7002:7002
+        volumes:
+          - /Users/aliaksandrbiarozka/programming/samples/checkout/checkout/building-blocks/redis-cluster/node2.conf:/etc/redis/redis.conf
+    redis3:
+        image: 'redis:alpine'
+        container_name: 'redis3'
+        network_mode: host
+        command: redis-server /etc/redis/redis.conf
+        ports:
+          - 7003:7003
+        volumes:
+          - /Users/aliaksandrbiarozka/programming/samples/checkout/checkout/building-blocks/redis-cluster/node3.conf:/etc/redis/redis.conf
+    redis4:
+        image: 'redis:alpine'
+        container_name: 'redis4'
+        network_mode: host
+        command: redis-server /etc/redis/redis.conf
+        ports:
+          - 7004:7004
+        volumes:
+          - /Users/aliaksandrbiarozka/programming/samples/checkout/checkout/building-blocks/redis-cluster/node4.conf:/etc/redis/redis.conf
+    redis5:
+        image: 'redis:alpine'
+        container_name: 'redis5'
+        network_mode: host
+        command: redis-server /etc/redis/redis.conf
+        ports:
+          - 7005:7005
+        volumes:
+          - /Users/aliaksandrbiarozka/programming/samples/checkout/checkout/building-blocks/redis-cluster/node5.conf:/etc/redis/redis.conf
+    redis6:
+        image: 'redis:alpine'
+        container_name: 'redis6'
+        network_mode: host
+        command: redis-server /etc/redis/redis.conf
+        ports:
+          - 7006:7006
+        volumes:
+          - /Users/aliaksandrbiarozka/programming/samples/checkout/checkout/building-blocks/redis-cluster/node6.conf:/etc/redis/redis.conf
+    redis-cluster:
+        image: 'redis:alpine'
+        command: sh -c "redis-cli --cluster create 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 127.0.0.1:7006 --cluster-replicas 1 && echo yes"
+        network_mode: host
+        depends_on:
+          - redis1
+          - redis2
+          - redis3
+          - redis4
+          - redis5
+          - redis6
     influxdb:
         image: 'influxdb:alpine'
         ports:
           - 8086:8086
-    chronograf:
-        image: 'chronograf:alpine'
-        ports:
-            - 8888:8888
         environment:
           - INFLUXDB_ADMIN_USER=admin
           - INFLUXDB_ADMIN_PASSWORD=admin
@@ -33,6 +94,7 @@ services:
           - 5000:5000
         environment:
             - AcquiringBankConfiguration__BaseAddress=http://bank-simulator
+            - RedisConnection=redis1:7001,redis2:7002,redis3:7003,redis4:7004,redis5:7005,redis6:7006,abortConnect=false
             - ApplicationMetrics__DataStore__Address=http://influxdb:8086
             - ApplicationMetrics__DataStore__Database=metricsdatabase
             - ApplicationMetrics__DataStore__UserName=paymentgetway

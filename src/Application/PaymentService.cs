@@ -63,7 +63,7 @@ namespace Application
             return payment != null ? ToDto(payment) : null;
         }
 
-        private PaymentDto ToDto(Payment payment)
+        private static PaymentDto ToDto(Payment payment)
         {
             return new PaymentDto(
                 payment.Id,

@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using API.Infrastructure;
 using API.Infrastructure.Extensions;
 using API.Infrastructure.HttpClientLogging;
 using API.Infrastructure.HttpClientPolicies;
@@ -22,6 +21,10 @@ using Newtonsoft.Json.Serialization;
 using Polly;
 using Swashbuckle.AspNetCore.Filters;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
+using API.Infrastructure.Middlewares;
+using Serilog;
+using API.Infrastructure.Filters;
 
 namespace API
 {
@@ -37,7 +40,7 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers()
+            services.AddControllers(options => options.Filters.Add(typeof(ExceptionFilter)))
                 // System.Text.Json does not support snake case strategy. Once it does (.NET 6), System.Text.Json should be used for better performance 
                 .AddNewtonsoftJson(options =>
                 {
@@ -70,7 +73,13 @@ namespace API
             }).AddSwaggerGenNewtonsoftSupport()
             .AddSwaggerExamplesFromAssemblyOf<Startup>();
 
-            services.AddLazyCache();
+            services.AddSingleton(sp =>
+            {
+                var cfg = ConfigurationOptions.Parse(Configuration.GetValue<string>("RedisConnection"));
+                var connection = ConnectionMultiplexer.Connect(cfg);
+
+                return connection;
+            });
             services.AddTransient<PaymentService>();
             services.AddTransient<IPaymentRepository, InMemoryPaymentRepository>();
             services.AddTransient<IAcquiringBankConfigurationProvider>(p => new AcquiringBankConfigurationProvider(Configuration.GetSection(nameof(AcquiringBankConfiguration)).Get<AcquiringBankConfiguration>()));
@@ -96,9 +105,8 @@ namespace API
             }
 
             app.UseHttpsRedirection();
-
-            app.UseCustomExceptionHandling()
-               .UseRequestLogging();
+            
+            app.UseCustomExceptionHandling();
 
             app.UseRouting();
 
@@ -110,6 +118,8 @@ namespace API
 
                 c.RoutePrefix = "";
             });
+
+            app.UseSerilogRequestLogging();
 
             app.UseMetricsAllMiddleware();
 

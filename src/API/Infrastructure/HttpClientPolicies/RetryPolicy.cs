@@ -19,7 +19,7 @@ namespace API.Infrastructure.HttpClientPolicies
                 .WaitAndRetryAsync(retryAttempts, retryAttempt => TimeSpan.FromSeconds(Math.Pow(1.5, retryAttempt)),
                     async (outcome, timeSpan, retryAttempt, context) =>
                     {
-                        logger.LogInformation($"Delaying for {timeSpan.TotalSeconds} sec, then making retry {retryAttempt} calling {request.Method.Method}: {request.RequestUri}. Body: {await request.Content.ReadAsStringAsync()}");
+                        logger.LogWarning($"Delaying for {timeSpan.TotalSeconds} sec, then making retry {retryAttempt}. Body: {await request.Content.ReadAsStringAsync()}");
                     });
 
         public static IAsyncPolicy<HttpResponseMessage> HonouringRetry(ILogger logger, HttpRequestMessage request, int retryAttempts)
@@ -35,7 +35,7 @@ namespace API.Infrastructure.HttpClientPolicies
 
                 }, async (response, timeSpan, retryAttempt, context) =>
                 {
-                    logger.LogInformation($"Handle 429 http status code. Delaying for {timeSpan.TotalSeconds} sec, then making retry {retryAttempt} calling {request.Method.Method}: {request.RequestUri}. Body: {await request.Content.ReadAsStringAsync()}");
+                    logger.LogWarning($"Handle 429 http status code. Delaying for {timeSpan.TotalSeconds} sec, then making retry {retryAttempt}. Body: {await request.Content.ReadAsStringAsync()}");
                 });
         }
 

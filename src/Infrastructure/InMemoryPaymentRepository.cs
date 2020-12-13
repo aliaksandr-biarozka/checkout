@@ -2,16 +2,18 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using Domain;
-using LazyCache;
+using StackExchange.Redis;
 
 namespace Infrastructure
 {
     // simulate repository. MemoryCache simulates db context object
     public class InMemoryPaymentRepository : IPaymentRepository
     {
-        private readonly IAppCache _cache;
+        private readonly ConnectionMultiplexer _connection;
 
-        public InMemoryPaymentRepository(IAppCache cache) => _cache = cache;
+        private readonly Func<Guid, Guid, string> _id = (merchantId, paymentId) => $"{merchantId}_{paymentId}";
+
+        public InMemoryPaymentRepository(ConnectionMultiplexer connection) => _connection = connection;
 
         public async Task Save(Payment payment)
         {
@@ -19,28 +21,22 @@ namespace Infrastructure
             // usually it is set by orm via reflection or it is set while object creation and provided by external id generator
             // code above "mimics" orm behavior
             var id = Guid.NewGuid();
-            payment.SetField("_id", id);
-
-            _cache.Add(id.ToString(), payment);
-
-            await Task.CompletedTask;
+            payment.SetProperty(nameof(Payment.Id), id);
+            
+            await _connection.GetDatabase().StringSetAsync(_id(payment.Id, payment.MerchantId), payment);
         }
 
         public async Task<Payment> Get(Guid paymentId, Guid merchantId)
         {
-            await Task.CompletedTask;
+            var payment = await _connection.GetDatabase().StringGetAsync<Payment>(_id(paymentId, merchantId));
 
-            var payment = _cache.Get<Payment>(paymentId.ToString());
-
-            if(payment != null && payment.MerchantId != merchantId)
+            if(payment == null)
             {
-                return null;
+
             }
 
             return payment;
         }
-
-        
     }
 
     internal static class PrivateInjector
@@ -53,6 +49,11 @@ namespace Infrastructure
         public static void SetField(this object obj, string fieldName, object value)
         {
             GetPrivateField(obj.GetType(), fieldName).SetValue(obj, value);
+        }
+
+        public static void SetProperty(this object obj, string propertyName, object value)
+        {
+            obj.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public).SetValue(obj, value);
         }
     }
 }

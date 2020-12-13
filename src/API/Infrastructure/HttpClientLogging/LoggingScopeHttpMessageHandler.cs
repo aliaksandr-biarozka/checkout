@@ -42,15 +42,15 @@ namespace API.Infrastructure.HttpClientLogging
                 public static readonly EventId PipelineEnd = new EventId(101, "RequestPipelineEnd");
             }
 
-            private static readonly Func<ILogger, HttpMethod, Uri, string, IDisposable> _beginRequestPipelineScope =
-                LoggerMessage.DefineScope<HttpMethod, Uri, string>(
-                    "HTTP {HttpMethod} {Uri} {CorrelationId}");
+            private static readonly Func<ILogger, HttpMethod, Uri, IDisposable> _beginRequestPipelineScope =
+                LoggerMessage.DefineScope<HttpMethod, Uri>(
+                    "HTTP {HttpMethod} {Uri}");
 
-            private static readonly Action<ILogger, HttpMethod, Uri, string, Exception> _requestPipelineStart =
-                LoggerMessage.Define<HttpMethod, Uri, string>(
+            private static readonly Action<ILogger, HttpMethod, Uri, Exception> _requestPipelineStart =
+                LoggerMessage.Define<HttpMethod, Uri>(
                     LogLevel.Information,
                     EventIds.PipelineStart,
-                    "Start processing HTTP request {HttpMethod} {Uri} [Correlation: {CorrelationId}]");
+                    "Start processing HTTP request {HttpMethod} {Uri}");
 
             private static readonly Action<ILogger, double, HttpStatusCode, Exception> _requestPipelineEnd =
                 LoggerMessage.Define<double, HttpStatusCode>(
@@ -62,14 +62,14 @@ namespace API.Infrastructure.HttpClientLogging
             {
                 var correlationId = GetCorrelationIdFromRequest(request);
 
-                return _beginRequestPipelineScope(logger, request.Method, request.RequestUri, correlationId);
+                return _beginRequestPipelineScope(logger, request.Method, request.RequestUri);
             }
 
             public static void RequestPipelineStart(ILogger logger, HttpRequestMessage request)
             {
                 var correlationId = GetCorrelationIdFromRequest(request);
 
-                _requestPipelineStart(logger, request.Method, request.RequestUri, correlationId, null);
+                _requestPipelineStart(logger, request.Method, request.RequestUri, null);
             }
 
             public static void RequestPipelineEnd(ILogger logger, HttpResponseMessage response, TimeSpan duration)

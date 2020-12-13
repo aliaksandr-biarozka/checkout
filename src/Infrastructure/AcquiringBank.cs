@@ -29,10 +29,9 @@ namespace Infrastructure
 
             _client.BaseAddress = new Uri(config.BaseAddress);
 
-            HttpResponseMessage response = null;
             var requestModel = JsonConvert.SerializeObject(ToBankRequestModel(paymentRequest));
 
-            response = await _client.PostAsync(config.Endpoint, new StringContent(requestModel, Encoding.UTF8, MediaTypeNames.Application.Json));
+            var response = await _client.PostAsync(config.Endpoint, new StringContent(requestModel, Encoding.UTF8, MediaTypeNames.Application.Json));
 
             if (!response.IsSuccessStatusCode)
             {

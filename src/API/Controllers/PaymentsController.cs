@@ -7,6 +7,7 @@ using API.Infrastructure.Swagger;
 using API.ResourceModels;
 using Application;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace API.Controllers
@@ -19,10 +20,12 @@ namespace API.Controllers
     public class PaymentsController : ApiController
     {
         private readonly PaymentService _paymentService;
+        private readonly ILogger _logger;
 
-        public PaymentsController(PaymentService paymentService)
+        public PaymentsController(PaymentService paymentService, ILogger<PaymentsController> logger)
         {
             _paymentService = paymentService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -41,6 +44,8 @@ namespace API.Controllers
         [ProducesResponseType((int)HttpStatusCode.Forbidden)]
         public async Task<IActionResult> ProcessPayment([FromBody]Payment payment, [FromHeader, Required] Guid merchant_id, [FromHeader, Required] Guid request_id)
         {
+            _logger.LogInformation("Process payment ({@payment}) request {request} for merchant {merchant}", payment, request_id, merchant_id);
+
             var result = await _paymentService.ProcessPaymentRequest(merchant_id, request_id, payment.ToDto());
 
             return CreatedAtAction(nameof(PaymentsController.GetPayment), new { paymentId = result.PaymentId }, result.ToResource());

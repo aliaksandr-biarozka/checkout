@@ -5,9 +5,7 @@ namespace Domain
 {
     public class Payment
     {
-        private Guid _id;
-
-        public Guid Id => _id;
+        public Guid Id { get; private set; }
 
         public Guid MerchantId { get; }
 
@@ -19,13 +17,13 @@ namespace Domain
 
         public Money Amount { get; }
 
-        public Payment(CardDetails cardDetails, Money amound, PaymentStatus status, Guid acquiringBankTransactionId, Guid merchantId)
+        public Payment(CardDetails cardDetails, Money amount, PaymentStatus status, Guid acquiringBankTransactionId, Guid merchantId)
         {
             Require.That(cardDetails != null, "Card details are not provided");
-            Require.That(amound != null, "Amount is not provided");
+            Require.That(amount != null, "Amount is not provided");
 
             CardDetails = cardDetails;
-            Amount = amound;
+            Amount = amount;
             Status = status;
             AcquiringBankTransactionId = acquiringBankTransactionId;
             MerchantId = merchantId;
