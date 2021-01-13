@@ -1,19 +1,21 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "src\API\API.csproj", "{64A46BD9-3361-4DB0-B41F-BE86808903C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "src\payment-getway\API\API.csproj", "{64A46BD9-3361-4DB0-B41F-BE86808903C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "src\Domain\Domain.csproj", "{5A9AA0AF-E4B2-45AC-B748-57492354EF0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "src\payment-getway\Domain\Domain.csproj", "{5A9AA0AF-E4B2-45AC-B748-57492354EF0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{4CE5A67A-D80E-4D70-9987-150EA8AA9FA0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\payment-getway\Infrastructure\Infrastructure.csproj", "{4CE5A67A-D80E-4D70-9987-150EA8AA9FA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "src\Application\Application.csproj", "{178B643F-8682-41E2-AAE2-40E7B34F2031}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "src\payment-getway\Application\Application.csproj", "{178B643F-8682-41E2-AAE2-40E7B34F2031}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "acquiring-bank-simulator", "acquiring-bank-simulator", "{A3920B99-FA26-4799-80CB-9DD67482B181}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSimulator", "bank-simulator\BankSimulator.csproj", "{D95D2215-7E43-438E-AE75-F6225F4C0026}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankSimulator", "src\bank-simulator\BankSimulator.csproj", "{D95D2215-7E43-438E-AE75-F6225F4C0026}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{223EC315-08B8-4F70-8B8E-C3444C17DEB8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "payment-getway", "payment-getway", "{8CB93DA0-B75C-4C4F-9D79-F994909B66D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,5 +46,9 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D95D2215-7E43-438E-AE75-F6225F4C0026} = {A3920B99-FA26-4799-80CB-9DD67482B181}
+		{64A46BD9-3361-4DB0-B41F-BE86808903C3} = {8CB93DA0-B75C-4C4F-9D79-F994909B66D5}
+		{178B643F-8682-41E2-AAE2-40E7B34F2031} = {8CB93DA0-B75C-4C4F-9D79-F994909B66D5}
+		{5A9AA0AF-E4B2-45AC-B748-57492354EF0A} = {8CB93DA0-B75C-4C4F-9D79-F994909B66D5}
+		{4CE5A67A-D80E-4D70-9987-150EA8AA9FA0} = {8CB93DA0-B75C-4C4F-9D79-F994909B66D5}
 	EndGlobalSection
 EndGlobal
